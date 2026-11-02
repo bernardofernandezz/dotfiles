@@ -1,0 +1,13 @@
+[tools]
+bun = "latest"
+claude = "latest"
+codex = "latest"
+copilot = "latest"
+deno = "latest"
+gh = "latest"
+"github:can1357/oh-my-pi" = "latest"
+node = "26.12.0"
+pi = "latest"
+
+[settings.upgrade]
+auto_prune = false

@@ -1,0 +1,8 @@
+# Run restarting your session to apply changes
+
+# Include fast emoji access
+include "%H/.config/xcompose"
+
+# Identification
+<Multi_key> <space> <n> : "Bernardo Fernandez"
+<Multi_key> <space> <e> : "bernafernandeztx@gmail.com"

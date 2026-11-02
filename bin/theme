@@ -1,0 +1,26 @@
+#!/bin/bash
+# Usage: theme            -> list themes
+#        theme <name>     -> activate theme (symlinks ~/.config/theme/current)
+set -e
+DIR=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/themes
+[[ -z $1 ]] && { ls "$DIR"; exit; }
+T="$DIR/$1"; [[ -d $T ]] || { echo "unknown theme: $1" >&2; exit 1; }
+
+mkdir -p ~/.config/theme ~/.config/btop/themes
+ln -sfn "$T" ~/.config/theme/current
+ln -sf ~/.config/theme/current/btop.theme ~/.config/btop/themes/current.theme
+bg=$(ls "$T"/backgrounds/* 2>/dev/null | head -1)
+mode=$(sed -n 's/^mode *= *"\(.*\)"/\1/p' "$T/colors.toml"); mode=${mode:-dark}
+
+# Desktop-specific bits, only if the tool exists
+if command -v gsettings >/dev/null; then
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" 2>/dev/null || true
+  [[ -n $bg ]] && gsettings set org.gnome.desktop.background picture-uri "file://$bg" 2>/dev/null || true
+  [[ -n $bg ]] && gsettings set org.gnome.desktop.background picture-uri-dark "file://$bg" 2>/dev/null || true
+fi
+command -v plasma-apply-wallpaperimage >/dev/null && [[ -n $bg ]] && plasma-apply-wallpaperimage "$bg" >/dev/null || true
+command -v swww >/dev/null && [[ -n $bg ]] && swww img "$bg" 2>/dev/null || true
+pkill -USR1 kitty 2>/dev/null || true          # kitty reloads config
+pkill -SIGUSR2 ghostty 2>/dev/null || true     # ghostty reloads config
+tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null || true
+echo "theme: $1 ($mode)  wallpapers: $T/backgrounds"
